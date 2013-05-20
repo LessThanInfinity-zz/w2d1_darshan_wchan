@@ -40,39 +40,49 @@ class Board
       puts "Game Over"
       display_mines
 
-    elsif
-      fringe_squares = surrounding(coord) {|y, x| check_bombs([y,x]) > 0}
-      #check_coord([y,x])
-      if fringe_squares.all? {|el| el == false}
+    elsif check_bombs(coord) > 0
+      y,x = coord
+      board[y][x] = check_bombs(coord)
 
     else
-
-
+      reveal(coord)
     end
+  end
+
+  def reveal(coord)
+    queue = []
+
+    fringe_squares = surrounding(coord) {|y, x| check_bombs([y,x]) == 0}
+    p "fringe_squares is #{fringe_squares}"
+    if fringe_squares.length == 9
+      fringe_squares.each {|el| board[el.first][el.last] = '-'}
+    end
+
+
   end
 
   def check_bombs(coord)
     # returns # of bombs
     y, x = coord
     num_of_bombs = surrounding(coord) {|y, x| mines.include?([y, x])}
-    num_of_bombs.count(true)
+    num_of_bombs.length
   end
 
 
   def surrounding(position, &blk)
     y,x = position
-    true_false = []
+    result = []
 
     (-1..1).each do |add_to_x|
       (-1..1).each do |add_to_y|
         check_x = x + add_to_x
         check_y = y + add_to_y
 
-        next if [add_to_x, add_to_y] == [0,0]
-        true_false << blk.call(check_y, check_x)
+        next if result.include?([check_y, check_x])
+        result << [check_y, check_x] if blk.call(check_y, check_x)
       end
     end
-    true_false
+    result
   end
 
 
