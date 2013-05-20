@@ -41,14 +41,10 @@ class Board
       display_mines
 
     elsif
-      fringe_squares = surrounding(coord)  do |y, x|
-        result = check_bombs([y,x]) > 0
+      fringe_squares = surrounding(coord) {|y, x| check_bombs([y,x]) > 0}
+      #check_coord([y,x])
+      if fringe_squares.all? {|el| el == false}
 
-        board[y][x] = "-" if (0..8).include?(x) && (0..8).include?(y)
-
-        #check_coord([y,x])
-        result
-      end
     else
 
 
