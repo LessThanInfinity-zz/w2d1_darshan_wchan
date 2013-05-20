@@ -39,8 +39,10 @@ class Board
     if mines.include?(coord)
       puts "Game Over"
       display_mines
-      return
-    else
+
+    # elsif
+  #
+  #   else
 
 
     end
@@ -62,6 +64,23 @@ class Board
       end
     end
     num_of_bombs
+  end
+
+
+  def surrounding(position, &blk)
+    y,x = position
+    true_false = []
+
+    (-1..1).each do |add_to_x|
+      (-1..1).each do |add_to_y|
+        check_x = x + add_to_x
+        check_y = y + add_to_y
+
+        next if [add_to_x, add_to_y] == [0,0]
+        true_false << blk.call(check_x, check_y)
+      end
+    end
+    true_false
   end
 
 
