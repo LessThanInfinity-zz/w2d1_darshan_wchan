@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'set'
 
 class Board
@@ -40,10 +42,6 @@ class Board
       puts "Game Over"
       display_mines
 
-    elsif check_bombs(coord) > 0
-      y,x = coord
-      board[y][x] = check_bombs(coord)
-
     else
       reveal(coord)
     end
@@ -51,14 +49,40 @@ class Board
 
   def reveal(coord)
     queue = []
+    visited = []
+    queue << coord
 
-    fringe_squares = surrounding(coord) {|y, x| check_bombs([y,x]) == 0}
-    p "fringe_squares is #{fringe_squares}"
-    if fringe_squares.length == 9
-      fringe_squares.each {|el| board[el.first][el.last] = '-'}
+    until queue.empty?
+      p "queue is #{queue}"
+      #gets
+
+      current_position = queue.shift
+      #next if !board[current_position.first][current_position.last]
+
+      p "current_position is #{current_position.inspect}"
+      p "#{check_bombs(current_position)} bomb(s) near"
+      p ""
+
+      if check_bombs(current_position) > 0
+        y,x = current_position
+        board[y][x] = check_bombs(current_position)
+
+      else
+        fringe_squares = surrounding(current_position) do |y, x|
+          !visited.include?([y,x])
+        end
+        visited << current_position
+
+        fringe_squares.each {|el| board[el.first][el.last] = '-'}
+
+        queue += fringe_squares.select do |position|
+          !visited.include?(position)
+        end
+        queue.uniq!
+      end
+      self.display
+      gets
     end
-
-
   end
 
   def check_bombs(coord)
@@ -77,7 +101,7 @@ class Board
       (-1..1).each do |add_to_y|
         check_x = x + add_to_x
         check_y = y + add_to_y
-
+        next unless (0..8).include?(check_y) && (0..8).include?(check_x)
         next if result.include?([check_y, check_x])
         result << [check_y, check_x] if blk.call(check_y, check_x)
       end
@@ -102,4 +126,15 @@ class Minesweeper
   end
 
 
+end
+
+if __FILE__ == $PROGRAM_NAME
+  a = Board.new
+  a.display_mines
+  p "input coord"
+  input = gets.chomp
+  input = input.split.map {|el| el.to_i}
+  p input.inspect
+  a.check_coord(input)
+  a.display
 end
